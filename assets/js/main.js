@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+
   highlightActiveLink();
   initializeCarousel();
   setupContactForm();
@@ -18,9 +19,11 @@ function initializeCarousel() {
   const carouselImage = document.querySelector('[data-carousel-image]');
   if (!carouselImage) return;
 
+
   const images = [
     'https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=1600&q=80',
     'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80',
+
     'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80',
     'https://images.unsplash.com/photo-1522199994204-aca47d849d6d?auto=format&fit=crop&w=1600&q=80'
   ];
@@ -148,9 +151,11 @@ function setupContactForm() {
       ${messageField.value.trim() ? `<p><strong>Mensaje:</strong> ${messageField.value.trim()}</p>` : ''}
     `;
     feedbackContainer.appendChild(submittedData);
+
     form.reset();
   });
 }
+
 
 function clearErrors(form) {
   form.querySelectorAll('.error-message').forEach((message) => message.remove());
@@ -168,4 +173,5 @@ function displayErrors(form, errors) {
     errorElement.textContent = message;
     field.insertAdjacentElement('afterend', errorElement);
   });
+
 }
