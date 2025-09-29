@@ -1,147 +1,177 @@
 document.addEventListener('DOMContentLoaded', () => {
-  initCarousel();
-  initContactForm();
+
+  highlightActiveLink();
+  initializeCarousel();
+  setupContactForm();
 });
 
-function initCarousel() {
-  const imageElement = document.querySelector('[data-carousel-image]');
-  if (!imageElement) return;
+function highlightActiveLink() {
+  const currentPage = window.location.pathname.split('/').pop();
+  document.querySelectorAll('nav a').forEach((link) => {
+    const href = link.getAttribute('href');
+    if (href === currentPage || (href === 'index.html' && currentPage === '')) {
+      link.classList.add('active');
+    }
+  });
+}
+
+function initializeCarousel() {
+  const carouselImage = document.querySelector('[data-carousel-image]');
+  if (!carouselImage) return;
+
 
   const images = [
     'https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=1600&q=80',
     'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80',
-    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80'
+
+    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1522199994204-aca47d849d6d?auto=format&fit=crop&w=1600&q=80'
   ];
 
-  let index = 0;
+  let currentIndex = 0;
   const indicatorsContainer = document.querySelector('[data-carousel-indicators]');
-  indicatorsContainer.innerHTML = '';
 
-  images.forEach((_, position) => {
-    const dot = document.createElement('span');
-    if (position === index) dot.classList.add('active');
-    dot.addEventListener('click', () => {
-      index = position;
-      updateCarousel();
-    });
-    indicatorsContainer.appendChild(dot);
+  images.forEach((_, index) => {
+    const indicator = document.createElement('span');
+    indicator.dataset.index = index;
+    indicatorsContainer.appendChild(indicator);
   });
 
-  document.querySelector('[data-carousel-prev]').addEventListener('click', () => {
-    index = (index - 1 + images.length) % images.length;
-    updateCarousel();
-  });
+  const indicators = indicatorsContainer.querySelectorAll('span');
 
-  document.querySelector('[data-carousel-next]').addEventListener('click', () => {
-    index = (index + 1) % images.length;
-    updateCarousel();
-  });
-
-  function updateCarousel() {
-    imageElement.src = images[index];
-    imageElement.alt = `Destino ${index + 1}`;
-    indicatorsContainer.querySelectorAll('span').forEach((dot, position) => {
-      dot.classList.toggle('active', position === index);
+  function renderImage(index) {
+    carouselImage.src = images[index];
+    carouselImage.alt = `Imagen destacada ${index + 1}`;
+    indicators.forEach((indicator, indicatorIndex) => {
+      indicator.classList.toggle('active', indicatorIndex === index);
     });
   }
 
-  updateCarousel();
+  function nextImage() {
+    currentIndex = (currentIndex + 1) % images.length;
+    renderImage(currentIndex);
+  }
+
+  function previousImage() {
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    renderImage(currentIndex);
+  }
+
+  document
+    .querySelector('[data-carousel-next]')
+    .addEventListener('click', () => nextImage());
+  document
+    .querySelector('[data-carousel-prev]')
+    .addEventListener('click', () => previousImage());
+
+  indicators.forEach((indicator) => {
+    indicator.addEventListener('click', () => {
+      currentIndex = Number(indicator.dataset.index);
+      renderImage(currentIndex);
+    });
+  });
+
+  renderImage(currentIndex);
 }
 
-function initContactForm() {
+function setupContactForm() {
   const form = document.querySelector('[data-contact-form]');
   if (!form) return;
 
-  const feedback = document.querySelector('[data-feedback]');
-  const nameInput = form.querySelector('#name');
-  const emailInput = form.querySelector('#email');
-  const phoneInput = form.querySelector('#phone');
-  const messageInput = form.querySelector('#message');
+  const nameField = form.querySelector('#name');
+  const emailField = form.querySelector('#email');
+  const phoneField = form.querySelector('#phone');
+  const messageField = form.querySelector('#message');
+  const feedbackContainer = document.querySelector('[data-feedback]');
 
-  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  const phonePattern = /^\+?\d{2,4}[\s-]?\d{3,4}[\s-]?\d{4}$/;
+  const validators = {
+    name: {
+      required: true,
+      maxLength: 50,
+      message: 'El nombre es obligatorio y debe tener menos de 50 caracteres.'
+    },
+    email: {
+      required: true,
+      pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      message: 'Ingrese un correo electrónico válido (ej: nombre@dominio.com).'
+    },
+    phone: {
+      required: true,
+      pattern: /^\+?\d{2,4}[\s-]?\d{3,4}[\s-]?\d{4}$/,
+      message: 'Ingrese un teléfono válido con código de país o área.'
+    },
+    message: {
+      required: false,
+      maxLength: 300,
+      message: 'El mensaje no debe superar los 300 caracteres.'
+    }
+  };
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
-    clearMessages(form, feedback);
+    clearErrors(form);
+    feedbackContainer.innerHTML = '';
 
-    let hasError = false;
+    const formData = new FormData(form);
+    const errors = {};
 
-    const nameValue = nameInput.value.trim();
-    if (!nameValue) {
-      showError(nameInput, 'El nombre es obligatorio.');
-      hasError = true;
-    } else if (nameValue.length > 50) {
-      showError(nameInput, 'El nombre debe tener hasta 50 caracteres.');
-      hasError = true;
+    for (const [field, value] of formData.entries()) {
+      const rules = validators[field];
+      if (!rules) continue;
+
+      const trimmedValue = value.trim();
+
+      if (rules.required && trimmedValue.length === 0) {
+        errors[field] = 'Este campo es obligatorio.';
+        continue;
+      }
+
+      if (rules.maxLength && trimmedValue.length > rules.maxLength) {
+        errors[field] = rules.message;
+        continue;
+      }
+
+      if (rules.pattern && trimmedValue && !rules.pattern.test(trimmedValue)) {
+        errors[field] = rules.message;
+      }
     }
 
-    const emailValue = emailInput.value.trim();
-    if (!emailValue) {
-      showError(emailInput, 'El correo es obligatorio.');
-      hasError = true;
-    } else if (!emailPattern.test(emailValue)) {
-      showError(emailInput, 'Ingrese un correo válido.');
-      hasError = true;
+    if (Object.keys(errors).length > 0) {
+      displayErrors(form, errors);
+      return;
     }
 
-    const phoneValue = phoneInput.value.trim();
-    if (!phoneValue) {
-      showError(phoneInput, 'El teléfono es obligatorio.');
-      hasError = true;
-    } else if (!phonePattern.test(phoneValue)) {
-      showError(phoneInput, 'Ingrese un teléfono válido.');
-      hasError = true;
-    }
+    const submittedData = document.createElement('div');
+    submittedData.classList.add('success-message');
+    submittedData.innerHTML = `
+      <h3>¡Gracias por contactarte!</h3>
+      <p><strong>Nombre:</strong> ${nameField.value.trim()}</p>
+      <p><strong>Email:</strong> ${emailField.value.trim()}</p>
+      <p><strong>Teléfono:</strong> ${phoneField.value.trim()}</p>
+      ${messageField.value.trim() ? `<p><strong>Mensaje:</strong> ${messageField.value.trim()}</p>` : ''}
+    `;
+    feedbackContainer.appendChild(submittedData);
 
-    const messageValue = messageInput.value.trim();
-    if (messageValue.length > 300) {
-      showError(messageInput, 'El mensaje debe tener hasta 300 caracteres.');
-      hasError = true;
-    }
-
-    if (hasError) return;
-
-    const container = document.createElement('div');
-    container.className = 'success-message';
-
-    const title = document.createElement('h3');
-    title.textContent = '¡Gracias por contactarte!';
-    container.appendChild(title);
-
-    const nameLine = document.createElement('p');
-    nameLine.textContent = `Nombre: ${nameValue}`;
-    container.appendChild(nameLine);
-
-    const emailLine = document.createElement('p');
-    emailLine.textContent = `Email: ${emailValue}`;
-    container.appendChild(emailLine);
-
-    const phoneLine = document.createElement('p');
-    phoneLine.textContent = `Teléfono: ${phoneValue}`;
-    container.appendChild(phoneLine);
-
-    if (messageValue) {
-      const messageLine = document.createElement('p');
-      messageLine.textContent = `Mensaje: ${messageValue}`;
-      container.appendChild(messageLine);
-    }
-
-    feedback.appendChild(container);
     form.reset();
   });
 }
 
-function showError(input, message) {
-  input.classList.add('field-error');
-  const error = document.createElement('p');
-  error.className = 'error-message';
-  error.textContent = message;
-  input.insertAdjacentElement('afterend', error);
+
+function clearErrors(form) {
+  form.querySelectorAll('.error-message').forEach((message) => message.remove());
+  form.querySelectorAll('.field-error').forEach((field) => field.classList.remove('field-error'));
 }
 
-function clearMessages(form, feedback) {
-  form.querySelectorAll('.error-message').forEach((element) => element.remove());
-  form.querySelectorAll('.field-error').forEach((field) => field.classList.remove('field-error'));
-  feedback.innerHTML = '';
+function displayErrors(form, errors) {
+  Object.entries(errors).forEach(([fieldName, message]) => {
+    const field = form.querySelector(`[name="${fieldName}"]`);
+    if (!field) return;
+
+    field.classList.add('field-error');
+    const errorElement = document.createElement('p');
+    errorElement.classList.add('error-message');
+    errorElement.textContent = message;
+    field.insertAdjacentElement('afterend', errorElement);
+  });
+
 }
