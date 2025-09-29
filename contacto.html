@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EcoTravel - Contacto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script defer src="assets/js/main.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="nav-container">
+        <span class="brand">EcoTravel</span>
+        <nav>
+          <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="articulo.html">Experiencias</a></li>
+            <li><a href="contacto.html">Contacto</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h1 class="section-title">Conversemos sobre tu próxima aventura</h1>
+        <div class="contact-wrapper">
+          <article class="contact-info">
+            <h2>¿Cómo trabajamos?</h2>
+            <p>
+              Cada propuesta comienza con una charla para conocer tus intereses, presupuesto y expectativas. Luego,
+              co-creamos un itinerario responsable que equilibra exploración, aprendizaje y descanso.
+            </p>
+            <ul>
+              <li>Asesoramiento personalizado</li>
+              <li>Red de aliados locales certificados</li>
+              <li>Seguimiento durante todo el viaje</li>
+            </ul>
+          </article>
+
+          <form data-contact-form novalidate>
+            <div>
+              <label for="name">Nombre completo</label>
+              <input type="text" id="name" name="name" placeholder="Tu nombre" required maxlength="50" />
+            </div>
+
+            <div>
+              <label for="email">Correo electrónico</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="nombre@dominio.com"
+                required
+                maxlength="70"
+                pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+              />
+            </div>
+
+            <div>
+              <label for="phone">Teléfono</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                placeholder="Ej: +54 911 1234 5678"
+                required
+                maxlength="20"
+                pattern="\+?\d{2,4}[\s-]?\d{3,4}[\s-]?\d{4}"
+              />
+            </div>
+
+            <div>
+              <label for="message">Mensaje</label>
+              <textarea id="message" name="message" rows="4" placeholder="Contanos tus ideas"></textarea>
+            </div>
+
+            <button class="btn" type="submit">Enviar consulta</button>
+          </form>
+        </div>
+
+        <div data-feedback></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        EcoTravel 2024 · Inspirando aventuras responsables ·
+        <a href="mailto:hola@ecotravel.com">hola@ecotravel.com</a>
+      </p>
+    </footer>
+  </body>
+</html>
